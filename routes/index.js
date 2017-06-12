@@ -1567,4 +1567,17 @@ router.get('/sitemap.xml', function (req, res, next){
     });
 });
 
+route.get('/pdf', function ( req, res ) {
+    let pdfjs = require('pdfjs-dist');
+
+    console.debug('PDFJS', pdfjs);
+
+    return 'Test pdf';
+
+    // res.render('pdf', {
+    //     title: 'Test PDF',
+    //     kb_body: pdfjs.getDocument('/public/pdfs/Martin_Puskac_CV.pdf');
+    // });
+});
+
 module.exports = router;
