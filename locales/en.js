@@ -173,5 +173,7 @@
 	"Edit reason": "Edit reason",
 	"Previous versions": "Previous versions",
 	"Topic": "Topic",
-	"Suggestion successfully processed": "Suggestion successfully processed"
+	"Suggestion successfully processed": "Suggestion successfully processed",
+	"Cannot find module 'pdfjs'": "Cannot find module 'pdfjs'",
+	"Missing helper: \"ifCond\"": "Missing helper: \"ifCond\""
 }
