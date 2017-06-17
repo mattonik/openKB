@@ -145,11 +145,19 @@ router.get('/' + config.settings.route_name + '/:id/version', common.restrict, f
     db.kb.findOne({_id: common.getId(req.params.id)}, function (err, result){
         // show the view
         common.dbQuery(db.kb, {kb_published: 'true', kb_versioned_doc: {$eq: true}}, sortBy, featuredCount, function (err, featured_results){
+            let kb_doc;
+            if( result.kb_document ) {
+                kb_doc = 'var url="' + result.kb_document + '#page=1";';
+            }
+
+            kb_doc = result.kb_document;
+
             res.render('kb', {
                 title: result.kb_title,
                 result: result,
                 user_page: true,
                 kb_body: common.sanitizeHTML(markdownit.render(result.kb_body)),
+                kb_document: kb_doc,
                 featured_results: featured_results,
                 config: config,
                 session: req.session,
@@ -230,11 +238,19 @@ router.get('/' + config.settings.route_name + '/:id', common.restrict, function 
 
                 // show the view
                 common.dbQuery(db.kb, {kb_published: 'true'}, sortBy, featuredCount, function (err, featured_results){
+                    let kb_doc;
+                    if( result.kb_document ) {
+                        kb_doc = 'var url="' + result.kb_document + '#page=1";';
+                    }
+
+                    kb_doc = result.kb_document;
+
                     res.render('kb', {
                         title: result.kb_title,
                         result: result,
                         user_page: true,
                         kb_body: common.sanitizeHTML(markdownit.render(result.kb_body)),
+                        kb_document: kb_doc,
                         featured_results: featured_results,
                         config: config,
                         session: req.session,
@@ -400,7 +416,11 @@ router.post('/insert_kb', common.restrict, function (req, res){
         kb_last_updated: new Date(),
         kb_last_update_user: req.session.users_name + ' - ' + req.session.user,
         kb_author: req.session.users_name,
-        kb_author_email: req.session.user
+        kb_author_email: req.session.user,
+        kb_document: req.body.frm_kb_document,
+        kb_project_size: req.body.frm_kb_project_size,
+        kb_methodology: req.body.frm_kb_methodology,
+        kb_phase: req.body.frm_kb_phase
     };
 
     db.kb.count({'kb_permalink': req.body.frm_kb_permalink}, function (err, kb){
@@ -414,6 +434,7 @@ router.post('/insert_kb', common.restrict, function (req, res){
             req.session.kb_body = req.body.frm_kb_body;
             req.session.kb_keywords = req.body.frm_kb_keywords;
             req.session.kb_permalink = req.body.frm_kb_permalink;
+            req.session.kb_document = req.body.frm_kb_document;
 
             // redirect to insert
             res.redirect(req.app_context + '/insert');
@@ -427,6 +448,7 @@ router.post('/insert_kb', common.restrict, function (req, res){
                     req.session.kb_body = req.body.frm_kb_body;
                     req.session.kb_keywords = req.body.frm_kb_keywords;
                     req.session.kb_permalink = req.body.frm_kb_permalink;
+                    req.session.kb_document = req.body.frm_kb_document;
 
                     req.session.message = req.i18n.__('Error') + ': ' + err;
                     req.session.message_type = 'danger';
@@ -1290,18 +1312,70 @@ router.get('/files', common.restrict, function (req, res){
 
 // insert form
 router.get('/insert', common.restrict, function (req, res){
-    res.render('insert', {
-        title: 'Insert new',
-        session: req.session,
-        kb_title: common.clear_session_value(req.session, 'kb_title'),
-        kb_body: common.clear_session_value(req.session, 'kb_body'),
-        kb_keywords: common.clear_session_value(req.session, 'kb_keywords'),
-        kb_permalink: common.clear_session_value(req.session, 'kb_permalink'),
-        message: common.clear_session_value(req.session, 'message'),
-        message_type: common.clear_session_value(req.session, 'message_type'),
-        editor: true,
-        helpers: req.handlebars,
-        config: config
+    var glob = require('glob');
+    var fs = require('fs');
+    var db = req.app.db;
+
+    // only allow admin
+    if(req.session.is_admin !== 'true'){
+        res.render('error', {message: 'Access denied', helpers: req.handlebars, config: config});
+        return;
+    }
+
+    // loop files in /public/uploads/
+    glob('public/uploads/**', {nosort: true}, function (er, files){
+        // sort array
+        files.sort();
+
+        // declare the array of objects
+        var file_list = [];
+        var dir_list = [];
+
+        // loop these files
+        for(var i = 0; i < files.length; i++){
+            if(fs.existsSync(files[i])){
+                if(fs.lstatSync(files[i]).isDirectory() === false){
+                    // declare the file object and set its values
+                    var file = {
+                        id: i,
+                        path: files[i].substring(6)
+                    };
+
+                    // push the file object into the array
+                    file_list.push(file);
+                }else{
+                    var dir = {
+                        id: i,
+                        path: files[i].substring(6)
+                    };
+
+                    // push the dir object into the array
+                    dir_list.push(dir);
+                }
+            }
+        }
+
+        common.dbQuery(db.categories, {kb_published: 'true'}, 'title', null, function (err, categories_result){
+            // render the insert route
+            console.log('categories_result', categories_result.length);
+            console.log(categories_result);
+            res.render('insert', {
+                title: 'Insert new',
+                files: file_list,
+                dirs: dir_list,
+                categories: categories_result,
+                session: req.session,
+                kb_title: common.clear_session_value(req.session, 'kb_title'),
+                kb_body: common.clear_session_value(req.session, 'kb_body'),
+                kb_keywords: common.clear_session_value(req.session, 'kb_keywords'),
+                kb_permalink: common.clear_session_value(req.session, 'kb_permalink'),
+                message: common.clear_session_value(req.session, 'message'),
+                message_type: common.clear_session_value(req.session, 'message_type'),
+                editor: true,
+                helpers: req.handlebars,
+                config: config
+            });
+        });
     });
 });
 
@@ -1567,14 +1641,129 @@ router.get('/sitemap.xml', function (req, res, next){
     });
 });
 
-router.get('/pdf-test', function(req, res){
+router.get('/test_insert', function( req, res ) {
+    res.send('Test');
+});
 
-    res.render('pdf', {
-        title: 'PDF Test',
-        pdftest: 'var url="/pdfs/Martin_Puskac_CV.pdf";',
-        session: req.session,
-        helpers: req.handlebars,
-        config: config
+// insert new KB form action
+router.get('/insert_categories', function (req, res){
+    var db = req.app.db;
+
+    var doc = 
+    [
+        {
+            kb_title: 'Project Size',
+            kb_slug: 'project_size',
+            kb_published: 'true',
+            kb_published_date: new Date(),
+            kb_last_updated: new Date(),
+            kb_children: [
+                {
+                    kb_title: '0 - 25 MA',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: '25 - 50 MA',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: '50 - 100 MA',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'No Idea',
+                    kb_published: 'true',
+                }
+            ]
+        },
+
+        {
+            kb_title: 'Methodology',
+            kg_slug: 'methodology',
+            kb_published: 'true',
+            kb_published_date: new Date(),
+            kb_last_updated: new Date(),
+            kb_children: [
+                {
+                    kb_title: 'Waterfall (Classic)',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'Agile (SCRUM)',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'No Idea',
+                    kb_published: 'true',
+                }
+            ]
+        },
+        {
+            kb_title: 'Phase',
+            kb_slug: 'phase',
+            kb_published: 'true',
+            kb_published_date: new Date(),
+            kb_last_updated: new Date(),
+            kb_children: [
+                {
+                    kb_title: 'Prestudy',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'Analysis & Design',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'Build',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'Test',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'Rollout',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'Decommissioning',
+                    kb_published: 'true',
+                },
+                {
+                    kb_title: 'No Idea',
+                    kb_published: 'true',
+                }
+            ]
+        }
+    ];
+
+    // Using a unique constraint with the index
+    db.categories.ensureIndex({ fieldName: 'kb_title', unique: true }, function (err) {
+    });
+
+    db.categories.insert(doc, function (err, newDoc){
+        if(err){
+            console.error('Error inserting document: ' + err);
+
+            req.session.message = req.i18n.__('Error') + ': ' + err;
+            req.session.message_type = 'danger';
+
+            res.send( req.i18n.__('Error') + ': ' + err );
+        }else{
+            // setup keywords
+            var keywords = '';
+            if(req.body.frm_kb_keywords !== undefined){
+                keywords = req.body.frm_kb_keywords.toString().replace(/,/g, ' ');
+            }
+
+
+            req.session.message = req.i18n.__('New article successfully created');
+            req.session.message_type = 'success';
+
+            // redirect to new doc
+            // res.redirect(req.app_context + '/edit/' + newId);
+            res.send( req.i18n.__('New article successfully created') );
+        }
     });
 });
 

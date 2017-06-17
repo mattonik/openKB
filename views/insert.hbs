@@ -45,6 +45,48 @@
                     <div class="form-group">
                         <input type="text" class="tokenfield form-control" name="frm_kb_keywords" id="frm_kb_keywords" placeholder="{{__ "comma, separated, list"}}" value={{kb_keywords}}>
                     </div>
+
+                    <h5>Available files</h5>
+                    {{#if files}}
+                    <ul class="list-group">
+						{{#each files}}
+							<li class="list-group-item" id="file-{{this.id}}">
+                                <div class="form-group">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="radio" name="frm_kb_document" value="{{this.path}}">
+                                            <span class="align-left">{{this.path}}</span>
+                                        </label>
+                                        (<a href="{{app_context}}{{this.path}}" target="_blank">Open file</a>)
+                                    </div>
+                                </div>
+							</li>
+						{{/each}}
+					</ul>
+                    {{else}}
+                    <span>No files available. <a href="{{app_context}}/files">Upload file</a></span>
+                    {{/if}}
+
+                    <h5>Categories</h5>
+                    {{#if categories}}
+                    <ul class="list-group">
+						{{#each categories}}
+							<li class="list-group-item" id="file-{{this.id}}">
+                                <div class="form-group">
+                                    <label for="category-{{this.id}}">{{this.kb_title}}</label>
+
+                                    <select name="frm_kb_{{this.kb_slug}}" id="category-{{this.id}}" class="form-control">
+                                        {{#each this.kb_children}}
+                                        <option value="{{this.kb_title}}">{{this.kb_title}}</option>
+                                        {{/each}}
+                                    </select>
+                                </div>
+							</li>
+						{{/each}}
+					</ul>
+                    {{else}}
+                    <span>No categories available.</span>
+                    {{/if}}
                 </div>
                 <div class="col-xs-12 col-sm-6 col-md-6 col-lg-3">
                     <input type="text" class="form-control" name="frm_kb_permalink" id="frm_kb_permalink" placeholder="{{__ "Permalink for the article"}}" value={{kb_permalink}}>
