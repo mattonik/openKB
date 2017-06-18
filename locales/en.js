@@ -176,5 +176,9 @@
 	"Suggestion successfully processed": "Suggestion successfully processed",
 	"Cannot find module 'pdfjs'": "Cannot find module 'pdfjs'",
 	"Missing helper: \"ifCond\"": "Missing helper: \"ifCond\"",
-	"Error": "Error"
+	"Error": "Error",
+	"Parse error on line 37:\n...              {{#if !this.kb_document}}\n-----------------------^\nExpecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'": "Parse error on line 37:\n...              {{#if !this.kb_document}}\n-----------------------^\nExpecting 'CLOSE_RAW_BLOCK', 'CLOSE', 'CLOSE_UNESCAPED', 'OPEN_SEXPR', 'CLOSE_SEXPR', 'ID', 'OPEN_BLOCK_PARAMS', 'STRING', 'NUMBER', 'BOOLEAN', 'UNDEFINED', 'NULL', 'DATA', 'SEP', got 'INVALID'",
+	"unless doesn't match each - 37:19": "unless doesn't match each - 37:19",
+	"Permalink already exists. Pick a new one.": "Permalink already exists. Pick a new one.",
+	"Parse error on line 47:\n...          {{kb_body.substr(100)}}      \n-----------------------^\nExpecting 'ID', got 'INVALID'": "Parse error on line 47:\n...          {{kb_body.substr(100)}}      \n-----------------------^\nExpecting 'ID', got 'INVALID'"
 }

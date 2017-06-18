@@ -44,7 +44,6 @@
             {{{kb_body}}}
 
             {{#if kb_document}}
-            Document
                 <script src="/pdf.js"></script>
                 <script>
                     var canvasContainer = document.getElementById('pdfImageImg');
@@ -94,8 +93,6 @@
                     loadPDFJS( "{{kb_document}}" );
                 </script>
                 <div id="pdfImageImg"></div>
-            {{else}}
-            No Document
             {{/if}}
         </div>
         {{#if config.settings.allow_voting}}
@@ -121,6 +118,24 @@
                     <div class="panel panel-primary" style="margin-top: 35px;">
                         <div class="panel-heading">{{__ "Article details"}}:</div>
                         <div class="panel-body">
+                            {{#if result.kb_project_size}}
+                                <h5 class="col-sm-12 col-lg-4">
+                                    <strong>Project size:</strong> {{result.kb_project_size}}
+                                </h5>
+                            {{/if}}
+                            
+                            {{#if result.kb_methodology}}
+                                <h5 class="col-sm-12 col-lg-4">
+                                    <strong>Methodology:</strong> {{result.kb_methodology}}
+                                </h5>
+                            {{/if}}
+
+                            {{#if result.kb_phase}}
+                                <h5 class="col-sm-12 col-lg-4">
+                                    <strong>Phase:</strong> {{result.kb_phase}}
+                                </h5>
+                            {{/if}}
+
                             <h5 class="col-sm-12 col-lg-6">
                                 <strong>{{__ "Published date"}}:</strong> {{format_date result.kb_published_date}}
                             </h5>
@@ -136,6 +151,7 @@
                                     </span>
                                 {{/if}}
                             </h5>
+
                             {{#if result.kb_permalink}}
                                 <h5 class="col-sm-12 col-lg-6">
                                     <strong>{{__ "Share article"}}:</strong>&nbsp;<a href="mailto:?subject={{result.kb_title}}&body={{encodeURI current_url}}/{{@root.config.settings.route_name}}/{{encodeURI result.kb_permalink}}" target="_top"><i class="fa fa-envelope" aria-hidden="true"></i></a>
@@ -151,9 +167,9 @@
                                 </h5>
                             {{/if}}
                             {{#if result.kb_permalink}}
-                            <h5 class="col-sm-12 col-lg-6">
-                                <strong>{{__ "Permalink"}}:</strong> <a href="{{current_url}}/{{@root.config.settings.route_name}}/{{result.kb_permalink}}" target="_blank">{{current_url}}/{{@root.config.settings.route_name}}/{{result.kb_permalink}}</a>
-                            </h5>
+                                <h5 class="col-sm-12 col-lg-6">
+                                    <strong>{{__ "Permalink"}}:</strong> <a href="{{current_url}}/{{@root.config.settings.route_name}}/{{result.kb_permalink}}" target="_blank">{{current_url}}/{{@root.config.settings.route_name}}/{{result.kb_permalink}}</a>
+                                </h5>
                             {{/if}}
                         </div>
                     </div>

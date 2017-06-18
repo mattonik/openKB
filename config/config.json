@@ -2,7 +2,7 @@
     "settings": {
         "route_name": "kb",
         "num_top_results": "10",
-        "date_format": "DD/MM/YYYY h:mmA",
+        "date_format": "DD.MM.YYYY h:m:s",
         "show_view_count": true,
         "update_view_count_logged_in": false,
         "show_published_date": true,
@@ -10,7 +10,7 @@
             "field": "kb_viewcount",
             "order": -1
         },
-        "website_title": "openKB",
+        "website_title": "CPTM",
         "show_featured_articles": true,
         "show_featured_in_article": false,
         "featured_articles_count": "4",
@@ -35,10 +35,11 @@
         "index_article_body": false,
         "enable_spellchecker": true,
         "show_website_logo": true,
-        "website_description": "openKB is an Open Source Node.js Markdown based knowledge base/FAQ/Wiki app with powerful lunr search",
+        "website_description": "CPTM Methodology tool",
         "article_versioning": false,
         "api_auth_token": "",
         "api_allowed": false,
-        "locale": "en"
+        "locale": "en",
+        "env": ""
     }
 }

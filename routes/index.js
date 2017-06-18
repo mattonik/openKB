@@ -12,7 +12,78 @@ var config = common.read_config();
 var appDir = path.dirname(require.main.filename);
 
 // The homepage of the site
-router.get('/', common.restrict, function (req, res, next){
+router.get('/', common.restrict, function (req, res, next) {
+    common.config_expose(req.app);
+
+    // set the template dir
+    common.setTemplateDir('user', req);
+
+    res.render('home', {
+        title: 'CPTM',
+        user_page: true,
+        homepage: true,
+        session: req.session,
+        message: common.clear_session_value(req.session, 'message'),
+        message_type: common.clear_session_value(req.session, 'message_type'),
+        config: config,
+        current_url: req.protocol + '://' + req.get('host') + req.app_context,
+        fullUrl: req.protocol + '://' + req.get('host') + req.originalUrl,
+        helpers: req.handlebars,
+        show_footer: 'show_footer'
+    });
+});
+
+router.get('/get-started', common.restrict, function (req, res, next) {
+    var db = req.app.db;
+    common.config_expose(req.app);
+
+    // set the template dir
+    common.setTemplateDir('user', req);
+
+    common.dbQuery(db.categories, {kb_published: 'true'}, 'title', null, function (err, categories_result){
+        // render the insert route
+        res.render('get_started', {
+            title: 'Get started',
+            user_page: true,
+            categories: categories_result,
+            session: req.session,
+            message: common.clear_session_value(req.session, 'message'),
+            message_type: common.clear_session_value(req.session, 'message_type'),
+            helpers: req.handlebars,
+            config: config,
+            show_footer: 'show_footer'
+        });
+    });
+});
+
+router.post('/get-started', common.restrict, function (req, res) {
+    var db = req.app.db;
+
+    common.config_expose(req.app);
+
+    db.kb.find({ kb_methodology: req.body.frm_kb_methodology, kb_project_size: req.body.frm_kb_project_size, kb_phase: req.body.frm_kb_phase, kb_type: 'article'}, function (err, articles) {
+        db.kb.find({ kb_methodology: req.body.frm_kb_methodology, kb_project_size: req.body.frm_kb_project_size, kb_phase: req.body.frm_kb_phase, kb_type: 'document'}, function (err, documents) {
+            common.dbQuery(db.categories, {kb_published: 'true'}, 'title', null, function (err, categories){
+                res.render('project_search', {
+                    title: 'Search results',
+                    user_page: true,
+                    articles: articles,
+                    documents: documents,
+                    categories: categories,
+                    session: req.session,
+                    message: common.clear_session_value(req.session, 'message'),
+                    message_type: common.clear_session_value(req.session, 'message_type'),
+                    helpers: req.handlebars,
+                    config: config,
+                    show_footer: 'show_footer'
+                });
+            });
+        });
+    });
+});
+
+// Browse page (original homepage)
+router.get('/browse', common.restrict, function (req, res, next){
     var db = req.app.db;
     common.config_expose(req.app);
     var featuredCount = config.settings.featured_articles_count ? config.settings.featured_articles_count : 4;
@@ -32,7 +103,6 @@ router.get('/', common.restrict, function (req, res, next){
             res.render('index', {
                 title: 'openKB',
                 user_page: true,
-                homepage: true,
                 top_results: top_results,
                 featured_results: featured_results,
                 session: req.session,
@@ -405,6 +475,11 @@ router.get('/edit/:id', common.restrict, function (req, res){
 router.post('/insert_kb', common.restrict, function (req, res){
     var db = req.app.db;
     var lunr_index = req.app.index;
+    var kb_type = 'document';
+
+    if( req.body.frm_kb_document === 'noFile' ) {
+        kb_type = 'article';
+    }
 
     var doc = {
         kb_permalink: req.body.frm_kb_permalink,
@@ -420,7 +495,8 @@ router.post('/insert_kb', common.restrict, function (req, res){
         kb_document: req.body.frm_kb_document,
         kb_project_size: req.body.frm_kb_project_size,
         kb_methodology: req.body.frm_kb_methodology,
-        kb_phase: req.body.frm_kb_phase
+        kb_phase: req.body.frm_kb_phase,
+        kb_type: kb_type
     };
 
     db.kb.count({'kb_permalink': req.body.frm_kb_permalink}, function (err, kb){
@@ -1357,8 +1433,6 @@ router.get('/insert', common.restrict, function (req, res){
 
         common.dbQuery(db.categories, {kb_published: 'true'}, 'title', null, function (err, categories_result){
             // render the insert route
-            console.log('categories_result', categories_result.length);
-            console.log(categories_result);
             res.render('insert', {
                 title: 'Insert new',
                 files: file_list,
@@ -1649,6 +1723,8 @@ router.get('/test_insert', function( req, res ) {
 router.get('/insert_categories', function (req, res){
     var db = req.app.db;
 
+    // Remove index on field somefield
+
     var doc = 
     [
         {
@@ -1669,17 +1745,13 @@ router.get('/insert_categories', function (req, res){
                 {
                     kb_title: '50 - 100 MA',
                     kb_published: 'true',
-                },
-                {
-                    kb_title: 'No Idea',
-                    kb_published: 'true',
                 }
             ]
         },
 
         {
             kb_title: 'Methodology',
-            kg_slug: 'methodology',
+            kb_slug: 'methodology',
             kb_published: 'true',
             kb_published_date: new Date(),
             kb_last_updated: new Date(),
@@ -1690,10 +1762,6 @@ router.get('/insert_categories', function (req, res){
                 },
                 {
                     kb_title: 'Agile (SCRUM)',
-                    kb_published: 'true',
-                },
-                {
-                    kb_title: 'No Idea',
                     kb_published: 'true',
                 }
             ]
@@ -1728,17 +1796,13 @@ router.get('/insert_categories', function (req, res){
                 {
                     kb_title: 'Decommissioning',
                     kb_published: 'true',
-                },
-                {
-                    kb_title: 'No Idea',
-                    kb_published: 'true',
                 }
             ]
         }
     ];
 
     // Using a unique constraint with the index
-    db.categories.ensureIndex({ fieldName: 'kb_title', unique: true }, function (err) {
+    db.categories.ensureIndex({ fieldName: 'kb_slug', unique: true }, function (err) {
     });
 
     db.categories.insert(doc, function (err, newDoc){

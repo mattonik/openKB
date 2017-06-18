@@ -49,8 +49,18 @@
                     <h5>Available files</h5>
                     {{#if files}}
                     <ul class="list-group">
+                        <li class="list-group-item" id="file-0">
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="radio" name="frm_kb_document" value="noFile" checked>
+                                        <span class="align-left">No document</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </li>
 						{{#each files}}
-							<li class="list-group-item" id="file-{{this.id}}">
+							<li class="list-group-item" id="file-{{this._id}}">
                                 <div class="form-group">
                                     <div class="checkbox">
                                         <label>
@@ -71,11 +81,11 @@
                     {{#if categories}}
                     <ul class="list-group">
 						{{#each categories}}
-							<li class="list-group-item" id="file-{{this.id}}">
+							<li class="list-group-item" id="file-{{this._id}}">
                                 <div class="form-group">
-                                    <label for="category-{{this.id}}">{{this.kb_title}}</label>
+                                    <label for="category-{{this._id}}">{{this.kb_title}}</label>
 
-                                    <select name="frm_kb_{{this.kb_slug}}" id="category-{{this.id}}" class="form-control">
+                                    <select name="frm_kb_{{this.kb_slug}}" id="category-{{this._id}}" class="form-control">
                                         {{#each this.kb_children}}
                                         <option value="{{this.kb_title}}">{{this.kb_title}}</option>
                                         {{/each}}

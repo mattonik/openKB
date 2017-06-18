@@ -1,0 +1,170 @@
+<div class="row">
+	<form action="{{app_context}}/search" id="search_form" method="post">
+        {{#if config.settings.show_featured_articles}}
+		    <div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1 search_bar">
+        {{else}}
+            <div class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2 search_bar">
+        {{/if}}
+			<div class="input-group">
+				<input type="text" name="frm_search" id="frm_search" autocomplete="off" class="form-control input-lg" placeholder="{{__ "Search the knowledge base"}}">
+				<span class="input-group-btn">
+					<button class="btn btn-success btn-lg" id="btn_search" type="submit">{{__ "Search"}}</button>
+				</span>
+			</div>
+            {{#ifCond config.settings.typeahead_search '===' true}}
+            <div id="searchResult" class="hidden col-lg-12">
+                <ul class="list-group searchResultList"></ul>
+            </div>
+            {{/ifCond}}
+		</div>
+	</form>
+</div>
+
+
+<div class="row">
+    <div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1">
+        <h1>Describe your project</h1>
+        <form method="post" id="edit_form" action="{{app_context}}/get-started">
+            {{#each categories}}
+                <div class="col-md-4" id="file-{{this._id}}">
+                    <div class="form-group">
+                        <label for="category-{{this._id}}">{{this.kb_title}}</label>
+
+                        <select name="frm_kb_{{this.kb_slug}}" id="category-{{this._id}}" class="form-control">
+                            {{#each this.kb_children}}
+                            <option value="{{this.kb_title}}">{{this.kb_title}}</option>
+                            {{/each}}
+                            <option value="empty">No idea</option>
+                        </select>
+                    </div>
+                </div>
+            {{/each}}
+
+            <button type="submit" class="btn btn-primary">Show project knowledge</button>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1">
+        <h1>Search results</h1>
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#articles" aria-controls="articles" role="tab" data-toggle="tab">Articles</a></li>
+            <li role="presentation"><a href="#documents" aria-controls="documents" role="tab" data-toggle="tab">Documents</a></li>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="articles">
+                {{#if articles}}
+                    <ul class="list-group">
+                    {{#each articles}}
+                        <li class="list-group-item">
+                            <h3>
+                            {{#if this.kb_permalink}}
+                                <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this.kb_permalink}}">{{this.kb_title}}</a>
+                            {{else}}
+                                <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this._id}}">{{this.kb_title}}</a>
+                            {{/if}}
+                            </h3>
+                            <p>
+                                {{kb_body}}
+                            </p>
+                            {{#if this.kb_permalink}}
+                                <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this.kb_permalink}}" class="btn btn-default btn-xs">Detail</a>
+                            {{else}}
+                                <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this._id}}" class="btn btn-default btn-xs">Detail</a>
+                            {{/if}}
+                        </li>
+                    {{/each}}
+                    </ul>
+                {{else}}
+                    <h5>No documents found for selected criteria</h5>
+                {{/if}}
+            </div>
+            <div role="tabpanel" class="tab-pane" id="documents">
+                {{#if documents}}
+                <div class="row">
+                    <div class="col-md-8">
+                        <ul class="list-group">
+                        {{#each documents}}
+                        <li class="list-group-item">
+                            <h3>
+                            {{#if this.kb_permalink}}
+                                <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this.kb_permalink}}">{{this.kb_title}}</a>
+                            {{else}}
+                                <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this._id}}">{{this.kb_title}}</a>
+                            {{/if}}
+                            </h3>
+                            <p>
+                                {{kb_body}}
+                            </p>
+                            {{#if this.kb_permalink}}
+                                <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this.kb_permalink}}" class="btn btn-default btn-xs">Detail</a>
+                            {{else}}
+                                <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this._id}}" class="btn btn-default btn-xs">Detail</a>
+                            {{/if}}
+                            <a href="#" class="btn btn-default btn-xs preview-document" data-document="{{kb_document}}" onclick="showPDF('{{kb_document}}')">Preview {{kb_document}}</a>
+                        </li>
+                        {{/each}}
+                    </ul>
+                    </div>
+                    <div class="col-md-4 preview hidden" id="filePreview">
+                        <h5>File preview</h5>
+                        <canvas id="the-canvas"></canvas>
+                    </div>
+                {{else}}
+                    <h5>No documents found for selected criteria</h5>
+                {{/if}}
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+
+<script src="/pdf.js"></script>
+<script>
+    function showPDF(url) {
+        var p = document.getElementById('filePreview');
+        p.classList.remove('hidden');
+
+        PDFJS.disableWorker = true;
+        PDFJS.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+        // Asynchronous download of PDF
+        var loadingTask = PDFJS.getDocument(url);
+        loadingTask.promise.then(function(pdf) {
+            console.log('PDF loaded');
+            
+            // Fetch the first page
+            var pageNumber = 1;
+            pdf.getPage(pageNumber).then(function(page) {
+                console.log('Page loaded');
+                
+                var scale = 0.5;
+                var viewport = page.getViewport(scale);
+
+                // Prepare canvas using PDF page dimensions
+                var canvas = document.getElementById('the-canvas');
+                var context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // Render PDF page into canvas context
+                var renderContext = {
+                canvasContext: context,
+                viewport: viewport
+                };
+                var renderTask = page.render(renderContext);
+                renderTask.then(function () {
+                console.log('Page rendered');
+                });
+            });
+            }, function (reason) {
+            // PDF loading error
+            console.error(reason);
+        });
+    }
+</script>

@@ -1,0 +1,45 @@
+<div class="row">
+	<form action="{{app_context}}/search" id="search_form" method="post">
+        {{#if config.settings.show_featured_articles}}
+		    <div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1 search_bar">
+        {{else}}
+            <div class="col-md-8 col-md-offset-2 col-lg-8 col-lg-offset-2 search_bar">
+        {{/if}}
+			<div class="input-group">
+				<input type="text" name="frm_search" id="frm_search" autocomplete="off" class="form-control input-lg" placeholder="{{__ "Search the knowledge base"}}">
+				<span class="input-group-btn">
+					<button class="btn btn-success btn-lg" id="btn_search" type="submit">{{__ "Search"}}</button>
+				</span>
+			</div>
+            {{#ifCond config.settings.typeahead_search '===' true}}
+            <div id="searchResult" class="hidden col-lg-12">
+                <ul class="list-group searchResultList"></ul>
+            </div>
+            {{/ifCond}}
+		</div>
+	</form>
+</div>
+
+<div class="row">
+    <div class="col-md-10 col-md-offset-1 col-lg-10 col-lg-offset-1">
+        <h1>Describe your project</h1>
+        <form method="post" id="edit_form" action="{{app_context}}/get-started">
+            {{#each categories}}
+                <div class="col-md-4" id="file-{{this._id}}">
+                    <div class="form-group">
+                        <label for="category-{{this._id}}">{{this.kb_title}}</label>
+
+                        <select name="frm_kb_{{this.kb_slug}}" id="category-{{this._id}}" class="form-control">
+                            {{#each this.kb_children}}
+                            <option value="{{this.kb_title}}">{{this.kb_title}}</option>
+                            {{/each}}
+                            <option value="empty">No idea</option>
+                        </select>
+                    </div>
+                </div>
+            {{/each}}
+
+            <button type="submit" class="btn btn-primary">Show project knowledge</button>
+        </form>
+    </div>
+</div>
