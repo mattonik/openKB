@@ -68,9 +68,7 @@
                                 <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this._id}}">{{this.kb_title}}</a>
                             {{/if}}
                             </h3>
-                            <p>
-                                {{kb_body}}
-                            </p>
+
                             {{#if this.kb_permalink}}
                                 <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this.kb_permalink}}" class="btn btn-default btn-xs">Detail</a>
                             {{else}}
@@ -105,7 +103,7 @@
                             {{else}}
                                 <a href="{{app_context}}/{{@root.config.settings.route_name}}/{{this._id}}" class="btn btn-default btn-xs">Detail</a>
                             {{/if}}
-                            <a href="#" class="btn btn-default btn-xs preview-document" data-document="{{kb_document}}" onclick="showPDF('{{kb_document}}')">Preview {{kb_document}}</a>
+                            <a href="#" class="btn btn-default btn-xs preview-document" data-document="{{kb_document}}" onclick="showPDF('{{kb_document}}')">Preview</a>
                         </li>
                         {{/each}}
                     </ul>

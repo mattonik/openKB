@@ -85,7 +85,7 @@
                                 <div class="form-group">
                                     <label for="category-{{this._id}}">{{this.kb_title}}</label>
 
-                                    <select name="frm_kb_{{this.kb_slug}}" id="category-{{this._id}}" class="form-control">
+                                    <select name="frm_kb_{{this.kb_slug}}" id="category-{{this._id}}" class="form-control" multiple>
                                         {{#each this.kb_children}}
                                         <option value="{{this.kb_title}}">{{this.kb_title}}</option>
                                         {{/each}}
