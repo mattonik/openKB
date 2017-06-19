@@ -27,7 +27,7 @@ Running the application in Production using minified code can be done by:
 
 ### Deploy on Heroku
 
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/mrvautin/openKB)
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/mattonik/openKB)
 
 ### Hosted/Managed
 
