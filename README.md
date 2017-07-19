@@ -1,8 +1,6 @@
-# openKB
+# cptmKB
 
 ![logo](https://raw.githubusercontent.com/mrvautin/mrvautin.github.io/master/images/openkb/openkb_logo_small.png)
-
-![npm downloads badge](https://nodei.co/npm/openkb.png?downloads=true "npm download badge")
 
 [![Build Status](https://travis-ci.org/mrvautin/openKB.svg?branch=master)](https://travis-ci.org/mrvautin/opnkb)
 
